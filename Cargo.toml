@@ -1,0 +1,13 @@
+[package]
+name = "birdoftheday"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+minreq = { version = "2.12.0", features = ["https","json-using-serde"] }
+rand = "0.8.5"
+regex = "1.11.1"
+scraper = "0.21.0"
+serde = { version = "1.0.215", features = ["derive"] }
+serde_json = "1.0.132"
+time = { version = "0.3.36", features = ["formatting"] }
