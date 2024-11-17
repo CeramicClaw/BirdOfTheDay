@@ -80,6 +80,7 @@ pub fn get_all_birds() {
     // Get all available birds from eBird.org
     let r = match minreq::get("https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json")
         .with_header("X-eBirdApiToken", env::var("EBIRD_API_KEY").unwrap())
+        .with_timeout(30)
         .send() {
             Ok(r) => r,
             Err(e) => {
@@ -143,6 +144,7 @@ fn get_bird() -> Option<Bird> {
 fn get_bird_photo(bird: &Bird) -> Option<BirdImage> {
     let r = match minreq::get(format!("https://ebird.org/species/{}", bird.species_code))
         .with_header("User-Agent", format!("BirdOfTheDayBot ({})", env::var("BOTD_EMAIL").unwrap()))
+        .with_timeout(30)
         .send() {
             Ok(r) => r,
             Err(e) => {
@@ -215,6 +217,7 @@ fn authenticate() -> Option<Token> {
     let r = match minreq::post("https://bsky.social/xrpc/com.atproto.server.createSession")
         .with_header("Content-Type", "application/json")
         .with_body(json.to_string())
+        .with_timeout(30)
         .send() {
             Ok(r) => r,
             Err(e) => {
@@ -260,7 +263,7 @@ fn post(b: &Bird, photo: &BirdImage, token: &Token) -> bool {
     // Get and upload the image card
     let r_photo = match minreq::get(photo.url_download.clone())
         .with_header("User-Agent", format!("BirdOfTheDayBot ({})", env::var("BOTD_EMAIL").unwrap()))
-        .with_timeout(10)
+        .with_timeout(30)
         .send() {
             Ok(r) => r,
             Err(e) => {
@@ -301,7 +304,7 @@ fn post(b: &Bird, photo: &BirdImage, token: &Token) -> bool {
     };
     
     // Image card upload was successful, now make the post
-    let text = format!("{}\n\nImage Credit", b.common_name);
+    let text = format!("{} ({})\n\nImage Credit", b.common_name, b.scientific_name);
     let post_json = json!({
         "repo": token.did,
         "collection": "app.bsky.feed.post",
